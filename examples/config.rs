@@ -17,6 +17,6 @@ impl vipera::Configuration for Config {
 }
 
 fn main() {
-    let config = Config::read_in_config().unwrap();
+    let config = Config::read_in_config().unwrap_or_default();
     config.write_config().unwrap();
 }

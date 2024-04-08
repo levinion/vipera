@@ -52,7 +52,7 @@ impl Vipera {
         let path = path
             .replace("$HOME", &home_dir)
             .replace('~', &home_dir)
-            .replace('.', &current_dir);
+            .replace("./", &current_dir);
         self.config_paths.push(path.into());
         self
     }
