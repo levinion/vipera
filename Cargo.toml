@@ -2,6 +2,10 @@
 name = "vipera"
 version = "0.1.2"
 edition = "2021"
+license = "MIT"
+description = "simple configuration file crate, but it works."
+repository = "https://github.com/levinion/vipera"
+keywords = ["config", "configuration"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
