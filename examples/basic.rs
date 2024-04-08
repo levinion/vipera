@@ -11,9 +11,9 @@ impl Config {
     pub fn new() -> Self {
         vipera::Vipera::new()
             .set_config_name("config.toml")
-            .add_config_path("/etc/ura")
-            .add_config_path("$HOME/.config/ura")
-            .extract()
+            .add_config_path("$HOME/.config/vipera")
+            .add_config_path("/etc/vipera")
+            .read_in_config()
             .unwrap_or_default()
     }
 }
