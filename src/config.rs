@@ -12,10 +12,7 @@ pub trait Configuration: serde::de::DeserializeOwned + serde::ser::Serialize {
 
     fn write_config(&self) -> Result<()> {
         let vipera = Self::vipera();
-        let paths = vipera
-            .config_paths
-            .iter()
-            .filter(|path| path.exists() && path.is_file());
+        let paths = vipera.config_paths.iter();
         for path in paths {
             let content = match vipera.config_type.as_ref().unwrap() {
                 ConfigType::Toml => toml::to_string(&self)?,
