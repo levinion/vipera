@@ -12,7 +12,9 @@ impl Config {
         vipera::Vipera::new()
             .set_config_name("config.toml")
             .add_config_path("$HOME/.config/vipera")
+            .unwrap()
             .add_config_path("/etc/vipera")
+            .unwrap()
             .read_in_config()
             .unwrap_or_default()
     }

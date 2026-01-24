@@ -20,8 +20,10 @@ impl vipera::Configuration for Config {
     fn vipera() -> vipera::Vipera {
         vipera::Vipera::new()
             .set_config_name("config.toml")
-            .add_config_path("/etc/vipera")
             .add_config_path("$HOME/.config/vipera")
+            .unwrap()
+            .add_config_path("/etc/vipera")
+            .unwrap()
     }
 }
 
@@ -29,4 +31,3 @@ fn main() {
     let config = Config::read_in_config().unwrap_or_default();
     config.write_config().unwrap();
 }
-```

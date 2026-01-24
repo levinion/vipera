@@ -2,7 +2,7 @@ mod config;
 
 use std::{fs::read_to_string, path::PathBuf};
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 pub use config::Configuration;
 
@@ -41,20 +41,12 @@ impl Vipera {
         self
     }
 
-    pub fn add_config_path(mut self, path: impl Into<PathBuf>) -> Self {
-        let path: PathBuf = path.into();
-        let path = path.into_os_string().into_string().unwrap();
-        let home_dir = std::env::var("HOME").unwrap();
-        let current_dir = std::env::current_dir()
-            .unwrap()
-            .to_string_lossy()
-            .to_string();
-        let path = path
-            .replace("$HOME", &home_dir)
-            .replace('~', &home_dir)
-            .replace("./", &current_dir);
-        self.config_paths.push(path.into());
-        self
+    pub fn add_config_path(mut self, path: impl Into<PathBuf>) -> Result<Self> {
+        let path =
+            shellexpand::full(path.into().to_str().context("invalid path str")?)?.to_string();
+        let path: PathBuf = PathBuf::from(path);
+        self.config_paths.push(path);
+        Ok(self)
     }
 
     pub fn read_in_config<T: serde::de::DeserializeOwned>(&self) -> Result<T> {
