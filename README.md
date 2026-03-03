@@ -7,6 +7,7 @@ Vipera is a straightforward Rust configuration crate, drawing inspiration from t
 ## Usage
 
 ```rust
+use anyhow::Result;
 use vipera::Configuration;
 
 #[derive(serde::Deserialize, Default, Debug)]
@@ -17,11 +18,12 @@ struct Config {
 }
 
 impl vipera::Configuration for Config {
-    fn vipera() -> vipera::Vipera {
-        vipera::Vipera::new()
+    fn vipera() -> Result<vipera::Vipera> {
+        let vipera = vipera::Vipera::new()
             .set_config_name("config.toml")
             .add_config_path("$HOME/.config/vipera")
-            .add_config_path("/etc/vipera")
+            .add_config_path("/etc/vipera");
+        Ok(vipera)
     }
 }
 
