@@ -2,6 +2,7 @@ use anyhow::Result;
 use vipera::Configuration;
 
 #[derive(serde::Deserialize, Default, Debug)]
+#[allow(unused)]
 struct Config {
     pub scale: f64,
     pub cursor_size: Option<u32>,
@@ -11,9 +12,9 @@ struct Config {
 impl vipera::Configuration for Config {
     fn vipera() -> Result<vipera::Vipera> {
         let vipera = vipera::Vipera::new()
-            .set_config_name("config.toml")
-            .add_config_path("$HOME/.config/vipera")
-            .add_config_path("/etc/vipera");
+            .set_config_name("config.toml")?
+            .add_config_path("$HOME/.config/vipera")?
+            .add_config_path("/etc/vipera")?;
         Ok(vipera)
     }
 }

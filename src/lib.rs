@@ -2,7 +2,7 @@ mod config;
 
 use std::{fs::read_to_string, path::PathBuf};
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 
 pub use config::Configuration;
 
@@ -25,33 +25,33 @@ impl Vipera {
         Self::default()
     }
 
-    pub fn set_config_name(mut self, name: impl Into<String>) -> Self {
+    pub fn set_config_name(mut self, name: impl Into<String>) -> Result<Self> {
         let name: String = name.into();
         let path = PathBuf::from(&name);
-        let config_type = match &path.extension().unwrap().to_str().unwrap().to_lowercase() as &str
-        {
+        let ext = path
+            .extension()
+            .and_then(|s| s.to_str())
+            .map(|s| s.to_lowercase())
+            .context(format!(
+                "Could not determine a valid file extension for path: {:?}",
+                path
+            ))?;
+        let config_type = match ext.as_str() {
             "toml" => ConfigType::Toml,
-            "yaml" => ConfigType::Yaml,
-            "yml" => ConfigType::Yaml,
+            "yaml" | "yml" => ConfigType::Yaml,
             "json" => ConfigType::Json,
-            _ => unreachable!(),
+            _ => bail!("Unsupported configuration format: .{}", ext),
         };
         self.config_name = Some(name);
         self.config_type = Some(config_type);
-        self
+        Ok(self)
     }
 
-    pub fn add_config_path(mut self, path: impl Into<PathBuf>) -> Self {
-        let path_str = match path.into().to_str() {
-            Some(path_str) => path_str.to_string(),
-            None => return self,
-        };
-        let path = match shellexpand::full(&path_str).ok() {
-            Some(path) => PathBuf::from(path.to_string()),
-            None => return self,
-        };
+    pub fn add_config_path(mut self, path: impl Into<String>) -> Result<Self> {
+        let path_str = path.into();
+        let path = PathBuf::from(shellexpand::full(&path_str)?.to_string());
         self.config_paths.push(path);
-        self
+        Ok(self)
     }
 
     pub fn read_in_config<T: serde::de::DeserializeOwned>(&self) -> Result<T> {
