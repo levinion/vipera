@@ -1,6 +1,6 @@
 use vipera::Configuration;
 
-#[derive(serde::Deserialize, serde::Serialize, Default)]
+#[derive(serde::Deserialize, serde::Serialize, Default, Debug)]
 struct Config {
     pub scale: f64,
     pub cursor_size: Option<u32>,
@@ -18,5 +18,5 @@ impl vipera::Configuration for Config {
 
 fn main() {
     let config = Config::read_in_config().unwrap_or_default();
-    config.write_config().unwrap();
+    dbg!(config);
 }

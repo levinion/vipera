@@ -1,20 +1,24 @@
 [package]
 name = "vipera"
-version = "0.1.5"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 authors = ["levinion <levinnion@gmail.com>"]
-description = "simple configuration file crate, but it works."
+description = "simple configuration file crate, it just works."
 repository = "https://github.com/levinion/vipera"
 documentation = "https://docs.rs/vipera"
 keywords = ["config", "configuration"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-anyhow = "1.0.81"
-serde = { version = "1.0.197", features = ["derive"] }
-serde_json = "1.0.115"
-serde_yaml = "0.9.34"
-shellexpand = { version = "3.1.1", features = ["full"] }
-toml = "0.8.12"
+anyhow = "1.0.102"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.149", optional = true }
+serde_yml = { version = "0.0.12", optional = true }
+shellexpand = { version = "3.1.2", features = ["full"] }
+toml = { version = "1.0.3", optional = true }
+
+[features]
+default = ["toml", "yaml", "json"]
+toml = ["dep:toml"]
+yaml = ["dep:serde_yml"]
+json = ["dep:serde_json"]

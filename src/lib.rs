@@ -2,7 +2,7 @@ mod config;
 
 use std::{fs::read_to_string, path::PathBuf};
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 
 pub use config::Configuration;
 
@@ -60,13 +60,20 @@ impl Vipera {
             if config_path.is_file() {
                 let content = read_to_string(&config_path)?;
                 let this = match self.config_type.as_ref().unwrap() {
+                    #[cfg(feature = "toml")]
                     ConfigType::Toml => toml::from_str::<T>(&content)?,
-                    ConfigType::Yaml => serde_yaml::from_str::<T>(&content)?,
+                    #[cfg(feature = "yaml")]
+                    ConfigType::Yaml => serde_yml::from_str::<T>(&content)?,
+                    #[cfg(feature = "json")]
                     ConfigType::Json => serde_json::from_str::<T>(&content)?,
+                    #[allow(unreachable_patterns)]
+                    _ => bail!(
+                        "The format is not supported by vipera yet, or not enabled in features"
+                    ),
                 };
                 return Ok(this);
             }
         }
-        Err(anyhow!("CONFIG FILES NOT EXIST"))
+        Err(anyhow!("The config file is not found"))
     }
 }
