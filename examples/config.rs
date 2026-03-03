@@ -1,6 +1,6 @@
 use vipera::Configuration;
 
-#[derive(serde::Deserialize, serde::Serialize, Default, Debug)]
+#[derive(serde::Deserialize, Default, Debug)]
 struct Config {
     pub scale: f64,
     pub cursor_size: Option<u32>,
