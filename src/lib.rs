@@ -13,7 +13,7 @@ pub struct Vipera {
     config_type: Option<ConfigType>,
 }
 
-pub enum ConfigType {
+enum ConfigType {
     Toml,
     Yaml,
     Json,
