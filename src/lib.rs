@@ -2,7 +2,7 @@ mod config;
 
 use std::{fs::read_to_string, path::PathBuf};
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Context, Result};
 
 pub use config::Configuration;
 
@@ -54,26 +54,29 @@ impl Vipera {
         Ok(self)
     }
 
-    pub fn read_in_config<T: serde::de::DeserializeOwned>(&self) -> Result<T> {
+    pub(crate) fn read_in_config<T: serde::de::DeserializeOwned>(&self) -> Result<T> {
+        let config_path = self.get_config_file()?;
+        let content = read_to_string(&config_path)?;
+        let this = match self.config_type.as_ref().unwrap() {
+            #[cfg(feature = "toml")]
+            ConfigType::Toml => toml::from_str::<T>(&content)?,
+            #[cfg(feature = "yaml")]
+            ConfigType::Yaml => serde_yml::from_str::<T>(&content)?,
+            #[cfg(feature = "json")]
+            ConfigType::Json => serde_json::from_str::<T>(&content)?,
+            #[allow(unreachable_patterns)]
+            _ => bail!("The format is not supported by vipera yet, or not enabled in features"),
+        };
+        Ok(this)
+    }
+
+    pub(crate) fn get_config_file(&self) -> Result<PathBuf> {
         for path in &self.config_paths {
             let config_path = path.join(self.config_name.as_ref().unwrap());
             if config_path.is_file() {
-                let content = read_to_string(&config_path)?;
-                let this = match self.config_type.as_ref().unwrap() {
-                    #[cfg(feature = "toml")]
-                    ConfigType::Toml => toml::from_str::<T>(&content)?,
-                    #[cfg(feature = "yaml")]
-                    ConfigType::Yaml => serde_yml::from_str::<T>(&content)?,
-                    #[cfg(feature = "json")]
-                    ConfigType::Json => serde_json::from_str::<T>(&content)?,
-                    #[allow(unreachable_patterns)]
-                    _ => bail!(
-                        "The format is not supported by vipera yet, or not enabled in features"
-                    ),
-                };
-                return Ok(this);
+                return Ok(config_path);
             }
         }
-        Err(anyhow!("The config file is not found"))
+        bail!("The config file is not found");
     }
 }
